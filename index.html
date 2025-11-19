@@ -18,7 +18,6 @@
                     <img id="logoShield" src="assets/penn-state-shield.jpg" alt="Penn State Shield Logo">
                     <img id="logoText" src="assets/logotype.svg" alt="Penn State Text Logo">
                 </div>
-                <!-- <img src="https://brand.psu.edu/images/backgrounds/horizontal-mark-registered-symbol.png"> -->
                 <div class="navLinks">
                     <a href="https://www.registrar.psu.edu/registration/registration-timetable.cfm">Registration Timetable</a>
                     <a href="https://www.registrar.psu.edu/degree-planning/">Degree Planning</a>
@@ -29,9 +28,11 @@
             </div>
         </nav>
     </header>
+
     <div class="heroContainer">
         <img id="heroImage" src="assets/pexels-linkedin-1251861.jpg" alt="Student leaving a building">
     </div>
+
     <div class="bodyContainer">
         <h1>Welcome to Penn State Advising</h1>
         <p>Learn about the resources available to get the most of our college experience.</p>
@@ -43,23 +44,59 @@
                 <p>Learn more about how you can schedule a meeting with an academic adviser.</p>
             </div>
             <div class="card">
-                <img src="assets/pexels-divinetechygirl-1181372.jpg" alt="Person looking at laptop and two people looking over his shoulder at the scren">
+                <img src="assets/pexels-divinetechygirl-1181372.jpg" alt="Person looking at laptop and two people looking over his shoulder at the screen">
                 <h3>Resources for Advisers</h3>
                 <p>Learn more about the specific policies and procedures for advising students.</p>
             </div>
         </div>
     </div>
 
+    <!-- COPY BUTTON -->
+    <button id="copyBtn" 
+            style="display:none; position:fixed; bottom:20px; right:20px; padding:10px 16px; font-size:16px;">
+        Copy
+    </button>
+
     <script>
         window.watsonAssistantChatOptions = {
-            integrationID: "bf5bd1de-50e4-4afe-8425-efc5fffe469b", // The ID of this integration.
-            region: "us-south", // The region your integration is hosted in.
-            serviceInstanceID: "0157dbeb-3e2a-4116-9582-d946ad51a3e1", // The ID of your service instance.
-            onLoad: async (instance) => { await instance.render(); }
+            integrationID: "bf5bd1de-50e4-4afe-8425-efc5fffe469b",
+            region: "us-south",
+            serviceInstanceID: "0157dbeb-3e2a-4116-9582-d946ad51a3e1",
+            onLoad: async (instance) => { 
+                await instance.render();
+
+                // LISTEN FOR COPY EVENTS FROM ASSISTANT
+                instance.on({
+                    type: "customEvent",
+                    handler: (event) => {
+                        if (event.name === "copyToClipboard") {
+                            const text = event.data;
+                            const btn = document.getElementById("copyBtn");
+
+                            btn.style.display = "block";
+                            btn.textContent = "Click to Copy";
+
+                            // Remove old click handlers to avoid duplicates
+                            btn.onclick = null;
+                            btn.onclick = () => {
+                                navigator.clipboard.writeText(text)
+                                    .then(() => {
+                                        alert("Copied to clipboard!");
+                                        btn.style.display = "none";
+                                    })
+                                    .catch(err => console.error("Copy failed:", err));
+                            };
+                        }
+                    }
+                });
+            }
         };
+
         setTimeout(function () {
-            const t = document.createElement('script');
-            t.src = "https://web-chat.global.assistant.watson.appdomain.cloud/versions/" + (window.watsonAssistantChatOptions.clientVersion || 'latest') + "/WatsonAssistantChatEntry.js";
+            const t = document.createElement("script");
+            t.src = "https://web-chat.global.assistant.watson.appdomain.cloud/versions/"
+                + (window.watsonAssistantChatOptions.clientVersion || "latest")
+                + "/WatsonAssistantChatEntry.js";
             document.head.appendChild(t);
         });
     </script>
