@@ -51,47 +51,92 @@
         </div>
     </div>
 
-    <!-- HOVER AREA + COPY BUTTON -->
-    <div id="hoverArea" 
-         style="padding:20px; 
-                width:300px; 
-                border:2px solid #1e407c; 
-                margin:40px auto; 
-                text-align:center;">
-        Hover here to reveal the copy button
+    <!-- Invisible hover area -->
+    <div id="hoverCopyZone"
+         style="width:300px; height:150px; position:absolute; top:250px; left:50px; opacity:0;">
     </div>
 
+    <!-- COPY BUTTON -->
     <button id="copyBtn" 
-            style="display:none; 
-                   padding:10px 16px; 
-                   font-size:16px; 
-                   margin:10px auto; 
-                   display:block;">
-        Copy Text
+            style="display:none; position:fixed; bottom:20px; right:20px; padding:10px 16px; font-size:16px;">
+        Copy
     </button>
 
+    <!-- Watson Assistant script -->
     <script>
-        const hoverArea = document.getElementById("hoverArea");
-        const copyBtn = document.getElementById("copyBtn");
+        window.watsonAssistantChatOptions = {
+            integrationID: "bf5bd1de-50e4-4afe-8425-efc5fffe469b",
+            region: "us-south",
+            serviceInstanceID: "0157dbeb-3e2a-4116-9582-d946ad51a3e1",
+            onLoad: async (instance) => { 
+                await instance.render();
 
-        // Show button on hover
-        hoverArea.addEventListener("mouseenter", () => {
-            copyBtn.style.display = "block";
-        });
+                // LISTEN FOR COPY EVENTS FROM ASSISTANT
+                instance.on({
+                    type: "customEvent",
+                    handler: (event) => {
+                        if (event.name === "copyToClipboard") {
+                            const text = event.data;
+                            const btn = document.getElementById("copyBtn");
 
-        // Hide when leaving
-        hoverArea.addEventListener("mouseleave", () => {
-            copyBtn.style.display = "none";
-        });
+                            btn.style.display = "block";
+                            btn.textContent = "Click to Copy";
 
-        // Copy text
-        copyBtn.addEventListener("click", () => {
-            const textToCopy = "Advising summary text goes here";
-            navigator.clipboard.writeText(textToCopy)
-                .then(() => alert("Copied!"))
-                .catch(err => console.error(err));
+                            btn.onclick = null;
+                            btn.onclick = () => {
+                                navigator.clipboard.writeText(text)
+                                    .then(() => {
+                                        alert("Copied to clipboard!");
+                                        btn.style.display = "none";
+                                    })
+                                    .catch(err => console.error("Copy failed:", err));
+                            };
+                        }
+                    }
+                });
+            }
+        };
+
+        setTimeout(function () {
+            const t = document.createElement("script");
+            t.src = "https://web-chat.global.assistant.watson.appdomain.cloud/versions/"
+                + (window.watsonAssistantChatOptions.clientVersion || "latest")
+                + "/WatsonAssistantChatEntry.js";
+            document.head.appendChild(t);
         });
     </script>
 
+    <!-- Hover to copy script -->
+    <script>
+        const hoverZone = document.getElementById("hoverCopyZone");
+        const copyBtn = document.getElementById("copyBtn");
+
+        const textToCopy = `Dear Sri,
+Here is a summary of our meeting regarding your interest in changing majors to HCDd:
+You've already completed courses IST 110 and IST 140; currently enrolled in IST 210.
+Still required to fulfill general education requirements including GEAs and GNs.
+Expressed desire to declare a Graphics Design Minor alongside HCDD Major - compatibility was noted during discussion.
+Entrance GPA criteria mentioned at 2.7 threshold.
+Change Of Major Petition process outlined necessary steps moving forward.
+Proposed plan involves completing IST 220 plus one GN Course & Support Option Class subsequently.
+Feel free to reach out if you have any questions.
+Sincerely,
+Donna`;
+
+        hoverZone.addEventListener("mouseenter", () => {
+            copyBtn.style.display = "block";
+            copyBtn.textContent = "Click to Copy";
+
+            copyBtn.onclick = () => {
+                navigator.clipboard.writeText(textToCopy)
+                    .then(() => alert("Copied to clipboard!"))
+                    .catch(err => console.error("Copy failed:", err));
+            };
+        });
+
+        hoverZone.addEventListener("mouseleave", () => {
+            copyBtn.style.display = "none";
+        });
+    </script>
 </body>
 </html>
