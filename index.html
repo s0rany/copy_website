@@ -51,54 +51,47 @@
         </div>
     </div>
 
-    <!-- COPY BUTTON -->
+    <!-- HOVER AREA + COPY BUTTON -->
+    <div id="hoverArea" 
+         style="padding:20px; 
+                width:300px; 
+                border:2px solid #1e407c; 
+                margin:40px auto; 
+                text-align:center;">
+        Hover here to reveal the copy button
+    </div>
+
     <button id="copyBtn" 
-            style="display:none; position:fixed; bottom:20px; right:20px; padding:10px 16px; font-size:16px;">
-        Copy
+            style="display:none; 
+                   padding:10px 16px; 
+                   font-size:16px; 
+                   margin:10px auto; 
+                   display:block;">
+        Copy Text
     </button>
 
     <script>
-        window.watsonAssistantChatOptions = {
-            integrationID: "bf5bd1de-50e4-4afe-8425-efc5fffe469b",
-            region: "us-south",
-            serviceInstanceID: "0157dbeb-3e2a-4116-9582-d946ad51a3e1",
-            onLoad: async (instance) => { 
-                await instance.render();
+        const hoverArea = document.getElementById("hoverArea");
+        const copyBtn = document.getElementById("copyBtn");
 
-                // LISTEN FOR COPY EVENTS FROM ASSISTANT
-                instance.on({
-                    type: "customEvent",
-                    handler: (event) => {
-                        if (event.name === "copyToClipboard") {
-                            const text = event.data;
-                            const btn = document.getElementById("copyBtn");
+        // Show button on hover
+        hoverArea.addEventListener("mouseenter", () => {
+            copyBtn.style.display = "block";
+        });
 
-                            btn.style.display = "block";
-                            btn.textContent = "Click to Copy";
+        // Hide when leaving
+        hoverArea.addEventListener("mouseleave", () => {
+            copyBtn.style.display = "none";
+        });
 
-                            // Remove old click handlers to avoid duplicates
-                            btn.onclick = null;
-                            btn.onclick = () => {
-                                navigator.clipboard.writeText(text)
-                                    .then(() => {
-                                        alert("Copied to clipboard!");
-                                        btn.style.display = "none";
-                                    })
-                                    .catch(err => console.error("Copy failed:", err));
-                            };
-                        }
-                    }
-                });
-            }
-        };
-
-        setTimeout(function () {
-            const t = document.createElement("script");
-            t.src = "https://web-chat.global.assistant.watson.appdomain.cloud/versions/"
-                + (window.watsonAssistantChatOptions.clientVersion || "latest")
-                + "/WatsonAssistantChatEntry.js";
-            document.head.appendChild(t);
+        // Copy text
+        copyBtn.addEventListener("click", () => {
+            const textToCopy = "Advising summary text goes here";
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => alert("Copied!"))
+                .catch(err => console.error(err));
         });
     </script>
+
 </body>
 </html>
